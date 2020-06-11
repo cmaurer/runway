@@ -174,17 +174,16 @@ class Terraform(RunwayModule):
                     env_vars=env_vars
                 )
 
-                # This will fail if the workspace hasn't been created outside of runway
-                # LOGGER.info('Running "terraform init"...')
-                # run_terraform_init(
-                #     tf_bin=tf_bin,
-                #     module_path=self.path,
-                #     module_options=options,
-                #     env_name=self.context.env_name,
-                #     env_region=self.context.env_region,
-                #     env_vars=env_vars,
-                #     no_color=self.context.no_color
-                # )
+                LOGGER.info('Running "terraform init"...')
+                run_terraform_init(
+                    tf_bin=tf_bin,
+                    module_path=self.path,
+                    module_options=options,
+                    env_name=self.context.env_name,
+                    env_region=self.context.env_region,
+                    env_vars=env_vars,
+                    no_color=self.context.no_color
+                )
 
                 # LOGGER.debug('Checking current Terraform workspace...')
                 # current_tf_workspace = subprocess.check_output(
@@ -195,6 +194,7 @@ class Terraform(RunwayModule):
                 #     env=env_vars
                 # ).strip().decode()
 
+                # if the deploy environment is not 'default', then switch to it, or create it
                 if self.context.env_name != 'default':
                     LOGGER.info("Terraform workspace currently set to %s; "
                                 "switching to %s...",
