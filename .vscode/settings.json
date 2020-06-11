@@ -90,7 +90,7 @@
     "python.linting.flake8Enabled": true,
     "python.linting.mypyEnabled": false,
     "python.linting.pylintEnabled": true,
-    "python.pythonPath": "${workspaceFolder}/.venv/bin/python",
+    "python.pythonPath": "/Users/e85262/Projects/GitHub/runway/.venv/bin/python3.8",
     "python.testing.pytestArgs": [
         "tests",
         "--no-cov"

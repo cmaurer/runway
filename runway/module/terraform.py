@@ -167,29 +167,38 @@ class Terraform(RunwayModule):
                                 '.terraform directory...')
                     send2trash(os.path.join(self.path, '.terraform'))
 
-                LOGGER.info('Running "terraform init"...')
-                run_terraform_init(
-                    tf_bin=tf_bin,
-                    module_path=self.path,
-                    module_options=options,
-                    env_name=self.context.env_name,
-                    env_region=self.context.env_region,
-                    env_vars=env_vars,
-                    no_color=self.context.no_color
+                # switch to the default workspace to start.
+                run_module_command(
+                    cmd_list=[tf_bin, 'workspace', 'select', 'default'] +
+                    (['-no-color'] if self.context.no_color else []),
+                    env_vars=env_vars
                 )
 
-                LOGGER.debug('Checking current Terraform workspace...')
-                current_tf_workspace = subprocess.check_output(
-                    [tf_bin,
-                     'workspace',
-                     'show'] + (['-no-color']
-                                if self.context.no_color else []),
-                    env=env_vars
-                ).strip().decode()
-                if current_tf_workspace != self.context.env_name:
+                # This will fail if the workspace hasn't been created outside of runway
+                # LOGGER.info('Running "terraform init"...')
+                # run_terraform_init(
+                #     tf_bin=tf_bin,
+                #     module_path=self.path,
+                #     module_options=options,
+                #     env_name=self.context.env_name,
+                #     env_region=self.context.env_region,
+                #     env_vars=env_vars,
+                #     no_color=self.context.no_color
+                # )
+
+                # LOGGER.debug('Checking current Terraform workspace...')
+                # current_tf_workspace = subprocess.check_output(
+                #     [tf_bin,
+                #      'workspace',
+                #      'show'] + (['-no-color']
+                #                 if self.context.no_color else []),
+                #     env=env_vars
+                # ).strip().decode()
+
+                if self.context.env_name != 'default':
                     LOGGER.info("Terraform workspace currently set to %s; "
                                 "switching to %s...",
-                                current_tf_workspace,
+                                "default",
                                 self.context.env_name)
                     LOGGER.debug('Checking available Terraform '
                                  'workspaces...')
@@ -216,17 +225,20 @@ class Terraform(RunwayModule):
                             (['-no-color'] if self.context.no_color else []),
                             env_vars=env_vars
                         )
-                    LOGGER.info('Re-running terraform init after workspace '
-                                'change...')
-                    run_terraform_init(
-                        tf_bin=tf_bin,
-                        module_path=self.path,
-                        module_options=options,
-                        env_name=self.context.env_name,
-                        env_region=self.context.env_region,
-                        env_vars=env_vars,
-                        no_color=self.context.no_color
-                    )
+
+                # LOGGER.info('Re-running terraform init after workspace '
+                #             'change...')
+                # now run terrfaform init, after the workspace has been figured out
+                LOGGER.info('Running "terraform init"...')
+                run_terraform_init(
+                    tf_bin=tf_bin,
+                    module_path=self.path,
+                    module_options=options,
+                    env_name=self.context.env_name,
+                    env_region=self.context.env_region,
+                    env_vars=env_vars,
+                    no_color=self.context.no_color
+                )
                 LOGGER.info('Executing "terraform get" to update remote '
                             'modules')
                 run_module_command(
